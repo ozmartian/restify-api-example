@@ -22,7 +22,8 @@ var PATH = '/jobs';
 server.get({path : PATH , version : '0.0.1'} , findAllJobs);
 server.get({path : PATH +'/:jobId' , version : '0.0.1'} , findJob);
 server.post({path : PATH , version: '0.0.1'} , postNewJob);
-server.del({path : PATH +'/:jobId' , version: '0.0.1'} , deleteJob);;
+server.del({path : PATH +'/:jobId' , version: '0.0.1'} , deleteJob);
+server.put({path: PATH + '/:jobId' , version: '0.0.1' }, updateJob);
 
 function findAllJobs(req, res , next){
     res.setHeader('Access-Control-Allow-Origin','*');
@@ -72,6 +73,27 @@ function postNewJob(req , res , next){
             return next(err);
         }
     });
+}
+
+function updateJob(req , res , next){
+    var job = {};
+    job.title = req.params.title;
+    job.description = req.params.description;
+    job.location = req.params.location;
+    job.postedOn = new Date();
+
+    res.setHeader('Access-Control-Allow-Origin','*');
+
+    jobs.update( {_id:mongojs.ObjectId(req.params.jobId)}, job, function(err , success){
+        console.log('Response success '+success);
+        console.log('Response error '+err);
+        if(success){
+            res.send(204);
+            return next();
+        } else{
+            return next(err);
+        }
+    })
 }
 
 function deleteJob(req , res , next){
